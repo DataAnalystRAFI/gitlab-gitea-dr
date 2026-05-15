@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ ./src/
+COPY scripts/ ./scripts/
+
+RUN mkdir -p /app/artifacts /app/config
+
+RUN chmod +x /app/scripts/*.py
+
+RUN echo "*/15 * * * * cd /app && python src/dr_agent.py --check >> /app/artifacts/dr-agent.log 2>&1" > /etc/cron.d/dr-agent \
+    && echo "0 8 * * * cd /app && python src/dr_agent.py --summary >> /app/artifacts/dr-agent.log 2>&1" >> /etc/cron.d/dr-agent \
+    && echo "0 */6 * * * cd /app && python src/mirror_manager.py --sync >> /app/artifacts/dr-agent.log 2>&1" >> /etc/cron.d/dr-agent \
+    && chmod 0644 /etc/cron.d/dr-agent \
+    && crontab /etc/cron.d/dr-agent
+
+CMD ["python", "-u", "src/dr_agent.py", "--daemon"]

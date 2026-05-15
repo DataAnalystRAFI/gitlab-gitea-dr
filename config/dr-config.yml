@@ -1,0 +1,32 @@
+gitlab:
+  url: "https://gitlab.com"
+  token: "${GITLAB_TOKEN}"
+  per_page: 100
+  request_timeout_secs: 30
+
+gitea:
+  url: "http://gitea:3000"
+  token: "${GITEA_TOKEN}"
+  request_timeout_secs: 30
+
+webhook:
+  url: "${WEBHOOK_URL}"
+  retry_count: 3
+  timeout_secs: 10
+  retry_delay_secs: 5
+
+mirror:
+  sync_interval_hours: 1
+  stale_threshold_hours: 24
+  default_branch_only: true
+
+scheduling:
+  check_interval_secs: 900
+  summary_interval_secs: 86400
+  repo_sync_interval_secs: 21600
+
+alerts:
+  on_lagging_repos: true
+  on_gitea_down: true
+  on_gitlab_down: true
+  lag_commit_threshold: 3
